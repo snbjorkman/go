@@ -1,0 +1,15 @@
+/home/spogirf/go/bin/Debug/net8.0/go
+/home/spogirf/go/bin/Debug/net8.0/go.deps.json
+/home/spogirf/go/bin/Debug/net8.0/go.runtimeconfig.json
+/home/spogirf/go/bin/Debug/net8.0/go.dll
+/home/spogirf/go/bin/Debug/net8.0/go.pdb
+/home/spogirf/go/obj/Debug/net8.0/go.GeneratedMSBuildEditorConfig.editorconfig
+/home/spogirf/go/obj/Debug/net8.0/go.AssemblyInfoInputs.cache
+/home/spogirf/go/obj/Debug/net8.0/go.AssemblyInfo.cs
+/home/spogirf/go/obj/Debug/net8.0/go.csproj.CoreCompileInputs.cache
+/home/spogirf/go/obj/Debug/net8.0/go.sourcelink.json
+/home/spogirf/go/obj/Debug/net8.0/go.dll
+/home/spogirf/go/obj/Debug/net8.0/refint/go.dll
+/home/spogirf/go/obj/Debug/net8.0/go.pdb
+/home/spogirf/go/obj/Debug/net8.0/go.genruntimeconfig.cache
+/home/spogirf/go/obj/Debug/net8.0/ref/go.dll
