@@ -13,4 +13,6 @@ class Stone{
         y = yCoord;
         color = stoneColor;
     }
+
+    public Stone(){}
 }
