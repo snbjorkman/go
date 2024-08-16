@@ -100,40 +100,7 @@ class GoGame{
     }
 
 
-    //TODO: delete all DJS methods and their instances cause they don't do anything
-    //either that or try to actually use them for quick lookup times etc
-    private void makeSet(Stone s){
-        if(findSet(s)==null){
-            s.parent = s;
-            s.liberties = countLiberties(s);
-        }
-    }
-
-
-    private Stone findSet(Stone s){
-        Stone root = s;
-        while(root.parent!=root){//finds root
-            root=root.parent;
-        }
-        while(s.parent!=root){//path compression from s to root.
-            Stone parent = s.parent;
-            s.parent = root;
-            s = parent;
-        }
-
-        return root;
-    }
-
-
-    private void union(Stone a, Stone b){
-        if(findSet(a)!=findSet(b)){
-            a.parent = b;
-            countLiberties(b);
-        }
-    }
-
-
-    private int countLiberties(Stone s){//updated to delete the stone and its set if there are no liberties. also updates liberties for whole set.
+    private int countLiberties(Stone s){
         getLiberties(s);
         int libertiesCount = liberties.Count;
         if(libertiesCount==0){
@@ -150,7 +117,7 @@ class GoGame{
         return libertiesCount;
     }
 
-    //make sure stones are not already in liberties or else they will keep calling each other okey
+    
     private void getLiberties(Stone s){
         visited.Add(s);
         try{
@@ -226,47 +193,33 @@ class GoGame{
 
     private void placeStone(int x, int y){
         stones[y, x] = new Stone(x, y, playerTurn);
-        //for all the adjacent stones, union if its the same color; otherwise countliberties for that stone (which deletes if 0)
-        //if the square adjacent is null or off the board it doesn't run because of the try catch
         try{
-            if(stones[y, x].color==stones[y-1, x].color){
-                union(stones[y, x], stones[y-1, x]);
-            }
-            else{
+            if(stones[y, x].color!=stones[y-1, x].color){
                 countLiberties(stones[y-1, x]);
             }
         }catch(Exception e){}
         try{
-            if(stones[y, x].color==stones[y, x-1].color){
-                union(stones[y, x], stones[y, x-1]);
-            }
-            else{
+            if(stones[y, x].color!=stones[y, x-1].color){
                 countLiberties(stones[y, x-1]);
             }
         }catch(Exception e){}
         try{
-            if(stones[y, x].color==stones[y+1, x].color){
-                union(stones[y, x], stones[y+1, x]);
-            }
-            else{
+            if(stones[y, x].color!=stones[y+1, x].color){
                 countLiberties(stones[y+1, x]);
             }
         }catch(Exception e){}
         try{
-            if(stones[y, x].color==stones[y, x+1].color){
-                union(stones[y, x], stones[y, x+1]);
-            }
-            else{
+            if(stones[y, x].color!=stones[y, x+1].color){
                 countLiberties(stones[y, x+1]);
             }
         }catch(Exception e){}
 
-        countLiberties(stones[y, x]); //in case the move makes it so that the stone disappears
+        countLiberties(stones[y, x]);
     }
 
 
     private bool validPlacement(int xCoord, int yCoord){
-        if(yCoord>=1 & yCoord<=BOARD_SIZE & xCoord>=1 & xCoord<=BOARD_SIZE){
+        if(yCoord>=0 & yCoord<=BOARD_SIZE-1 & xCoord>=0 & xCoord<=BOARD_SIZE-1){
             return true;
         }
         else{
@@ -318,8 +271,17 @@ class GoGame{
 
 
     private void printBoard(){
+        Console.Write("\n\n\n");
+        Console.Write("  ");
+        for(int i = 0; i<BOARD_SIZE; i++){
+            Console.Write(i + "   ");
+        }
+        Console.WriteLine();
+        
         
         for(int i = 0; i<BOARD_SIZE; i++){
+            Console.Write(i + " ");
+
             for(int j = 0; j<BOARD_SIZE; j++){
                 
                 if(stones[i, j]==null){
@@ -338,7 +300,7 @@ class GoGame{
             }
             
             Console.WriteLine();
-
+            Console.Write("  ");
             if(i!=BOARD_SIZE-1){
                 for(int k = 0; k<BOARD_SIZE-1; k++){
                     Console.Write("|   ");
