@@ -2,16 +2,15 @@
 using System.IO;
 using StoneSpace;
 
-class GoGame{ //this program will work it is just going to suffer a lot from lack of high-level design.
-
+class GoGame{
     private int BOARD_SIZE;
     private bool GAME_WON = false;
     private string playerTurn = "black";
     private bool lastTurnPass = false;
-    Stone[,] stones; //we have this so we can interact with stones as objects; the board in the game module is just for representing on the screen.
+    Stone[,] stones;
     HashSet<Stone> visited = new HashSet<Stone>();
-    HashSet<(int, int)> liberties = new HashSet<(int, int)>(); //(y, x) for the sake of consistency.
-    HashSet<(int, int)> visitedSpaces = new HashSet<(int, int)>(); //(y, x) also
+    HashSet<(int, int)> liberties = new HashSet<(int, int)>(); 
+    HashSet<(int, int)> visitedSpaces = new HashSet<(int, int)>();
 
 
     public GoGame(int boardSize){
@@ -60,9 +59,10 @@ class GoGame{ //this program will work it is just going to suffer a lot from lac
     }
 
 
+
     private int rawScores(string color){
         for(int i = 0; i<BOARD_SIZE; i++){
-            for(int j = 0; i<BOARD_SIZE; i++){
+            for(int j = 0; j<BOARD_SIZE; j++){
                 try{
                     if(stones[i, j].color==color){
                         fillRegion(i, j, color);
@@ -82,7 +82,7 @@ class GoGame{ //this program will work it is just going to suffer a lot from lac
         float whiteScore = (float)rawScores("white");
 
         if(blackScore + whiteScore > BOARD_SIZE*BOARD_SIZE){
-            float neutralSpaces = ((whiteScore+blackScore)-BOARD_SIZE*BOARD_SIZE)/2;
+            float neutralSpaces = ((whiteScore+blackScore)-BOARD_SIZE*BOARD_SIZE);
             blackScore -= neutralSpaces;
             whiteScore -= neutralSpaces;
         }
@@ -95,11 +95,13 @@ class GoGame{ //this program will work it is just going to suffer a lot from lac
             Console.WriteLine("White wins!");
         }
         Console.WriteLine("Black score:" + blackScore);
-        Console.WriteLine("Whitescore:" + whiteScore);
+        Console.WriteLine("White score:" + whiteScore);
         Environment.Exit(0);
     }
 
-    
+
+    //TODO: delete all DJS methods and their instances cause they don't do anything
+    //either that or try to actually use them for quick lookup times etc
     private void makeSet(Stone s){
         if(findSet(s)==null){
             s.parent = s;
@@ -148,39 +150,39 @@ class GoGame{ //this program will work it is just going to suffer a lot from lac
         return libertiesCount;
     }
 
-
+    //make sure stones are not already in liberties or else they will keep calling each other okey
     private void getLiberties(Stone s){
         visited.Add(s);
         try{
-            if(stones[s.y, s.x].color==stones[s.y-1, s.x].color){
-                getLiberties(stones[s.y-1, s.x]);
-            }
-            else if(stones[s.y-1, s.x]==null){
+            if(stones[s.y-1, s.x]==null & !liberties.Contains((s.y-1, s.x))){
                 liberties.Add((s.y-1, s.x));
             }
+            else if(stones[s.y, s.x].color==stones[s.y-1, s.x].color & !visited.Contains(stones[s.y-1, s.x])){
+                getLiberties(stones[s.y-1, s.x]);
+            }
         }catch(Exception e){}
         try{
-            if(stones[s.y, s.x].color==stones[s.y, s.x-1].color){
-                getLiberties(stones[s.y, s.x-1]);
-            }
-            else if(stones[s.y, s.x-1]==null){
+            if(stones[s.y, s.x-1]==null & !liberties.Contains((s.y, s.x-1))){
                 liberties.Add((s.y, s.x-1));
             }
+            else if(stones[s.y, s.x].color==stones[s.y, s.x-1].color & !visited.Contains(stones[s.y, s.x-1])){
+                getLiberties(stones[s.y, s.x-1]);
+            }
         }catch(Exception e){}
         try{
-            if(stones[s.y, s.x].color==stones[s.y+1, s.x].color){
-                getLiberties(stones[s.y+1, s.x]);
-            }
-            else if(stones[s.y+1, s.x]==null){
+            if(stones[s.y+1, s.x]==null & !liberties.Contains((s.y+1, s.x))){
                 liberties.Add((s.y+1, s.x));
             }
+            else if(stones[s.y, s.x].color==stones[s.y+1, s.x].color & !visited.Contains(stones[s.y+1, s.x])){
+                getLiberties(stones[s.y+1, s.x]);
+            }
         }catch(Exception e){}
         try{
-            if(stones[s.y, s.x].color==stones[s.y, s.x+1].color){
-                getLiberties(stones[s.y, s.x+1]);
-            }
-            else if(stones[s.y, s.x+1]==null){
+            if(stones[s.y, s.x+1]==null & !liberties.Contains((s.y, s.x+1))){
                 liberties.Add((s.y, s.x+1));
+            }
+            else if(stones[s.y, s.x].color==stones[s.y, s.x+1].color & !visited.Contains(stones[s.y, s.x+1])){
+                getLiberties(stones[s.y, s.x+1]);
             }
         }catch(Exception e){}
         
@@ -224,7 +226,6 @@ class GoGame{ //this program will work it is just going to suffer a lot from lac
 
     private void placeStone(int x, int y){
         stones[y, x] = new Stone(x, y, playerTurn);
-
         //for all the adjacent stones, union if its the same color; otherwise countliberties for that stone (which deletes if 0)
         //if the square adjacent is null or off the board it doesn't run because of the try catch
         try{
@@ -259,8 +260,8 @@ class GoGame{ //this program will work it is just going to suffer a lot from lac
                 countLiberties(stones[y, x+1]);
             }
         }catch(Exception e){}
-        
-        countLiberties(stones[y, x]); //in case the move makes it so that the stone
+
+        countLiberties(stones[y, x]); //in case the move makes it so that the stone disappears
     }
 
 
@@ -299,7 +300,7 @@ class GoGame{ //this program will work it is just going to suffer a lot from lac
                 finishGame();
             }
             lastTurnPass = true;
-            Console.WriteLine(playerTurn + "has passed this turn.");
+            Console.WriteLine(playerTurn + " has passed this turn.");
             return;
         }
         else if(command[0]=="resign"){
@@ -318,30 +319,29 @@ class GoGame{ //this program will work it is just going to suffer a lot from lac
 
     private void printBoard(){
         
-        for(int i = 0; i<BOARD_SIZE-1; i++){
-            for(int j = 0; j<BOARD_SIZE-1; i++){
-                try{
-                    if(stones[i, j]==null){
-                        Console.Write(" ");
-                    }
-                    else if(stones[i, j].color=="black"){
-                        Console.Write("x");
-                    }
-                    else if(stones[i,j].color=="white"){
-                        Console.Write("o");
-                    }
-                    if(j!=BOARD_SIZE-1){
-                        Console.Write("-");
-                    }
-                }catch(Exception e){}
+        for(int i = 0; i<BOARD_SIZE; i++){
+            for(int j = 0; j<BOARD_SIZE; j++){
                 
+                if(stones[i, j]==null){
+                    Console.Write(" ");
+                }
+                else if(stones[i, j].color=="black"){
+                    Console.Write("X");
+                }
+                else if(stones[i,j].color=="white"){
+                    Console.Write("O");
+                }
+                if(j!=BOARD_SIZE-1){
+                    Console.Write("---");
+                }
+                 
             }
             
             Console.WriteLine();
 
             if(i!=BOARD_SIZE-1){
                 for(int k = 0; k<BOARD_SIZE-1; k++){
-                    Console.Write("| ");
+                    Console.Write("|   ");
                 }
                 Console.WriteLine("|");
             }
@@ -353,7 +353,7 @@ class GoGame{ //this program will work it is just going to suffer a lot from lac
         if(playerTurn=="black"){
             playerTurn = "white";
         }
-        if(playerTurn=="white"){
+        else if(playerTurn=="white"){
             playerTurn = "black";
         }
     }
